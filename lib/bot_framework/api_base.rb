@@ -12,23 +12,31 @@ module BotFramework
     def api_get(local_uri, _opts = {})
       uri = URI.join(service_url, URI.escape(local_uri))
       BotFramework.logger.info uri
-      JSON.parse(BotFramework.connector.token.get(uri).body)
+      JSON.parse(token.get(uri).body)
     end
 
     def api_post(local_uri, opts = {})
       uri = URI.join(service_url, URI.escape(local_uri))
-      JSON.parse(BotFramework.connector.token.post(uri, body: opts.to_json,
-                                                        headers: { 'Content-Type' => 'application/json' }).body)
+      JSON.parse(token.post(uri, body: opts.to_json, headers: { 'Content-Type' => 'application/json' }).body)
+    rescue OAuth2::Error => error
+      p error
     end
 
     def api_delete(local_uri)
       uri = URI.join(service_url, URI.escape(local_uri))
-      BotFramework.connector.token.delete(uri)
+      token.delete(uri)
     end
 
     def api_request(method, local_uri, opts)
       uri = URI.join(service_url, URI.escape(local_uri))
-      BotFramework.connector.token.request(method, uri, opts)
+      token.request(method, uri, opts)
     end
+
+    private
+
+    def token
+      BotFramework.connector.token
+    end
+
   end
 end
